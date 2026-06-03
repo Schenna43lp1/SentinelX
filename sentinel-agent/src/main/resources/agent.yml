@@ -1,0 +1,15 @@
+# SentinelX Agent Configuration
+# Copy this file next to the agent jar and edit before starting.
+
+# URL of the SentinelX server (no trailing slash)
+server_url: http://localhost:8080
+
+# Agent token — obtain from: SentinelX UI > Nodes > <your node> > Agent Token
+# Leave blank on first run; the agent will register and print instructions.
+agent_token: ""
+
+# How often to push metrics (seconds)
+interval_seconds: 30
+
+# Display name shown in the SentinelX UI
+node_name: my-node

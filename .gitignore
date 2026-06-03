@@ -1,3 +1,26 @@
+# Maven build output
+target/
+
+# IDE
+.idea/
+*.iml
+.eclipse/
+.settings/
+.project
+.classpath
+*.swp
+
+# Secrets / local overrides
+application-local.yml
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+
 # Compiled class file
 *.class
 
