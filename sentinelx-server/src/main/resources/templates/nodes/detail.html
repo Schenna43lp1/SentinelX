@@ -2,149 +2,231 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
 <head th:replace="~{fragments/layout :: head('Node Detail')}"></head>
-<body class="bg-dark text-light">
+<body>
 
-<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="sx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('nodes')}"></div>
 
-<div class="container-fluid py-4">
-    <div class="d-flex align-items-center mb-4 gap-3">
-        <a th:href="@{/nodes}" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i>
-        </a>
-        <h4 class="fw-semibold mb-0" th:text="${node.name}">Node</h4>
-        <span th:if="${node.status.name() == 'ONLINE'}" class="badge bg-success fs-6">ONLINE</span>
-        <span th:unless="${node.status.name() == 'ONLINE'}" class="badge bg-danger fs-6">OFFLINE</span>
-    </div>
-
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show py-2" role="alert">
-        <i class="bi bi-check-circle me-1"></i><span th:text="${successMessage}"></span>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-    </div>
-
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <div class="card bg-secondary border-0 shadow h-100">
-                <div class="card-header bg-transparent border-0 fw-semibold">
-                    <i class="bi bi-info-circle me-1 text-primary"></i>Node Info
-                </div>
-                <div class="card-body">
-                    <dl class="row mb-0 small">
-                        <dt class="col-sm-4 text-muted">Hostname</dt>
-                        <dd class="col-sm-8" th:text="${node.hostname}">-</dd>
-                        <dt class="col-sm-4 text-muted">IP Address</dt>
-                        <dd class="col-sm-8" th:text="${node.ipAddress ?: '-'}">-</dd>
-                        <dt class="col-sm-4 text-muted">OS</dt>
-                        <dd class="col-sm-8" th:text="${node.os ?: '-'}">-</dd>
-                        <dt class="col-sm-4 text-muted">Agent Version</dt>
-                        <dd class="col-sm-8" th:text="${node.agentVersion ?: '-'}">-</dd>
-                        <dt class="col-sm-4 text-muted">Tags</dt>
-                        <dd class="col-sm-8" th:text="${node.tags ?: '-'}">-</dd>
-                        <dt class="col-sm-4 text-muted">Last Seen</dt>
-                        <dd class="col-sm-8"
-                            th:text="${node.lastSeen != null ? #temporals.format(node.lastSeen, 'yyyy-MM-dd HH:mm:ss') : 'Never'}">-</dd>
-                        <dt class="col-sm-4 text-muted">Created</dt>
-                        <dd class="col-sm-8"
-                            th:text="${#temporals.format(node.createdAt, 'yyyy-MM-dd HH:mm')}">-</dd>
-                    </dl>
-                </div>
+    <div class="sx-main">
+        <!-- Custom topbar with back button -->
+        <header class="sx-topbar">
+            <a th:href="@{/nodes}" class="sx-topbar-icon-btn" title="Back to Nodes">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div class="sx-topbar-title" style="gap:10px;">
+                <span th:text="${node.name}" style="font-size:15px;font-weight:600;">Node</span>
+                <span th:if="${node.status.name() == 'ONLINE'}"  class="sx-status sx-status--online">
+                    <span class="sx-status-dot"></span>Online
+                </span>
+                <span th:unless="${node.status.name() == 'ONLINE'}" class="sx-status sx-status--offline">
+                    <span class="sx-status-dot"></span>Offline
+                </span>
             </div>
-        </div>
+            <div class="sx-topbar-spacer"></div>
+            <div sec:authorize="hasRole('ADMIN')" style="display:flex;gap:8px;">
+                <a th:href="@{/nodes/{id}/edit(id=${node.id})}" class="sx-btn sx-btn-ghost sx-btn-sm">
+                    <i class="bi bi-pencil"></i> Edit
+                </a>
+                <form th:action="@{/nodes/{id}/delete(id=${node.id})}" method="post"
+                      onsubmit="return confirm('Delete this node? All metrics and alerts will be lost.')">
+                    <button type="submit" class="sx-btn sx-btn-danger sx-btn-sm">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </header>
 
-        <div class="col-md-6" sec:authorize="hasRole('ADMIN')">
-            <div class="card bg-secondary border-0 shadow h-100">
-                <div class="card-header bg-transparent border-0 fw-semibold">
-                    <i class="bi bi-key me-1 text-warning"></i>Agent Token
-                </div>
-                <div class="card-body">
-                    <p class="text-muted small mb-2">Use this token in <code>agent.yml</code> as <code>agent_token</code>.</p>
-                    <div class="input-group mb-3">
-                        <input type="password" id="tokenField" class="form-control bg-dark border-secondary text-light font-monospace small"
-                               th:value="${node.agentToken}" readonly/>
-                        <button class="btn btn-outline-secondary" type="button"
-                                onclick="toggleToken()"><i class="bi bi-eye" id="toggleIcon"></i></button>
-                        <button class="btn btn-outline-secondary" type="button"
-                                onclick="copyToken()"><i class="bi bi-clipboard"></i></button>
+        <div class="sx-content">
+
+            <div th:if="${successMessage}" class="sx-flash sx-flash-success">
+                <i class="bi bi-check-circle-fill"></i>
+                <span th:text="${successMessage}"></span>
+                <button class="sx-flash-dismiss" type="button">&times;</button>
+            </div>
+
+            <!-- Top info row -->
+            <div class="row g-3 mb-4" style="--bs-gutter-x:14px;">
+
+                <!-- Node info -->
+                <div class="col-lg-5">
+                    <div class="sx-card h-100">
+                        <div class="sx-card-header">
+                            <span class="sx-card-title">
+                                <i class="bi bi-info-circle"></i> Node Info
+                            </span>
+                        </div>
+                        <div class="sx-card-body">
+                            <dl class="sx-dl">
+                                <dt>Hostname</dt>
+                                <dd th:text="${node.hostname}">—</dd>
+                                <dt>IP Address</dt>
+                                <dd th:text="${node.ipAddress ?: '—'}">—</dd>
+                                <dt>OS</dt>
+                                <dd th:text="${node.os ?: '—'}">—</dd>
+                                <dt>Agent Version</dt>
+                                <dd th:text="${node.agentVersion ?: '—'}">—</dd>
+                                <dt>Tags</dt>
+                                <dd>
+                                    <span th:if="${node.tags != null and !#strings.isEmpty(node.tags)}"
+                                          class="sx-badge sx-badge--tag" th:text="${node.tags}">—</span>
+                                    <span th:unless="${node.tags != null and !#strings.isEmpty(node.tags)}"
+                                          style="color:var(--sx-text-muted);">—</span>
+                                </dd>
+                                <dt>Last Seen</dt>
+                                <dd th:text="${node.lastSeen != null ? #temporals.format(node.lastSeen, 'yyyy-MM-dd HH:mm:ss') : 'Never'}">—</dd>
+                                <dt>Registered</dt>
+                                <dd th:text="${#temporals.format(node.createdAt, 'yyyy-MM-dd HH:mm')}">—</dd>
+                            </dl>
+                        </div>
                     </div>
-                    <form th:action="@{/nodes/{id}/regenerate-token(id=${node.id})}" method="post"
-                          onsubmit="return confirm('Regenerate token? The agent will need to be reconfigured.')">
-                        <button type="submit" class="btn btn-sm btn-outline-warning">
-                            <i class="bi bi-arrow-clockwise me-1"></i>Regenerate Token
-                        </button>
-                    </form>
+                </div>
+
+                <!-- Agent Token (admin only) -->
+                <div class="col-lg-7" sec:authorize="hasRole('ADMIN')">
+                    <div class="sx-card h-100">
+                        <div class="sx-card-header">
+                            <span class="sx-card-title">
+                                <i class="bi bi-key" style="color:var(--sx-yellow);"></i> Agent Token
+                            </span>
+                        </div>
+                        <div class="sx-card-body">
+                            <p style="font-size:12px;color:var(--sx-text-muted);margin-bottom:12px;">
+                                Use this token in <code style="background:rgba(255,255,255,.07);padding:1px 5px;border-radius:3px;">agent.yml</code>
+                                as <code style="background:rgba(255,255,255,.07);padding:1px 5px;border-radius:3px;">agent_token</code>.
+                            </p>
+                            <div style="display:flex;gap:0;margin-bottom:14px;">
+                                <input type="password" id="tokenField"
+                                       class="sx-input sx-mono"
+                                       style="border-radius:6px 0 0 6px;"
+                                       th:value="${node.agentToken}" readonly/>
+                                <button type="button"
+                                        class="sx-btn sx-btn-ghost"
+                                        style="border-radius:0;border-left:none;"
+                                        onclick="sxToggleToken('tokenField','tokenIcon')">
+                                    <i id="tokenIcon" class="bi bi-eye"></i>
+                                </button>
+                                <button type="button" id="copyBtn"
+                                        class="sx-btn sx-btn-ghost"
+                                        style="border-radius:0 6px 6px 0;border-left:none;"
+                                        onclick="sxCopyToken('tokenField')">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                            <form th:action="@{/nodes/{id}/regenerate-token(id=${node.id})}" method="post"
+                                  onsubmit="return confirm('Regenerate token? The agent must be reconfigured.')">
+                                <button type="submit" class="sx-btn sx-btn-ghost sx-btn-sm" style="color:var(--sx-yellow);border-color:rgba(245,158,11,.3);">
+                                    <i class="bi bi-arrow-clockwise"></i> Regenerate Token
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- CPU/RAM charts pulled via API -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-6">
-            <div class="card bg-secondary border-0 shadow">
-                <div class="card-header bg-transparent border-0 fw-semibold small">
-                    <i class="bi bi-cpu me-1 text-info"></i>CPU — Last Hour
+            <!-- Charts -->
+            <div class="row g-3 mb-4" style="--bs-gutter-x:14px;">
+                <div class="col-md-6">
+                    <div class="sx-card">
+                        <div class="sx-card-header">
+                            <span class="sx-card-title">
+                                <i class="bi bi-cpu" style="color:var(--sx-cyan);"></i> CPU — Last Hour
+                            </span>
+                            <span id="cpuCurrent" style="font-size:13px;font-weight:600;color:var(--sx-cyan);"></span>
+                        </div>
+                        <div class="sx-card-body">
+                            <canvas id="cpuChart" height="110"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body"><canvas id="cpuChart" height="120"></canvas></div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card bg-secondary border-0 shadow">
-                <div class="card-header bg-transparent border-0 fw-semibold small">
-                    <i class="bi bi-memory me-1 text-primary"></i>RAM — Last Hour
+                <div class="col-md-6">
+                    <div class="sx-card">
+                        <div class="sx-card-header">
+                            <span class="sx-card-title">
+                                <i class="bi bi-memory" style="color:var(--sx-accent);"></i> RAM — Last Hour
+                            </span>
+                            <span id="ramCurrent" style="font-size:13px;font-weight:600;color:var(--sx-accent);"></span>
+                        </div>
+                        <div class="sx-card-body">
+                            <canvas id="ramChart" height="110"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body"><canvas id="ramChart" height="120"></canvas></div>
             </div>
-        </div>
-    </div>
 
-    <!-- Admin actions -->
-    <div sec:authorize="hasRole('ADMIN')" class="d-flex gap-2">
-        <a th:href="@{/nodes/{id}/edit(id=${node.id})}" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-pencil me-1"></i>Edit
-        </a>
-        <form th:action="@{/nodes/{id}/delete(id=${node.id})}" method="post"
-              onsubmit="return confirm('Delete this node? All metrics and alerts will be lost.')">
-            <button type="submit" class="btn btn-outline-danger btn-sm">
-                <i class="bi bi-trash me-1"></i>Delete Node
-            </button>
-        </form>
-    </div>
-</div>
+        </div><!-- /sx-content -->
+    </div><!-- /sx-main -->
+</div><!-- /sx-wrapper -->
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmJ6OOBmzQ/GZI6tQJrDRl2/J9"
-        crossorigin="anonymous"></script>
+<div th:replace="~{fragments/layout :: scripts}"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script th:inline="javascript">
-    const nodeId = /*[[${node.id}]]*/ 0;
+const nodeId = /*[[${node.id}]]*/ 0;
+const GRID   = 'rgba(42,49,71,.8)';
+const TICK   = '#6b7a99';
 
-    function toggleToken() {
-        const f = document.getElementById('tokenField');
-        const icon = document.getElementById('toggleIcon');
-        if (f.type === 'password') { f.type = 'text'; icon.className = 'bi bi-eye-slash'; }
-        else { f.type = 'password'; icon.className = 'bi bi-eye'; }
-    }
+function makeChart(id, label, color) {
+    return new Chart(document.getElementById(id), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label, data: [],
+                borderColor: color,
+                backgroundColor: color + '18',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 0,
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            animation: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1c2233',
+                    borderColor: '#2a3147',
+                    borderWidth: 1,
+                    titleColor: '#94a3b8',
+                    bodyColor: '#e2e8f0',
+                    callbacks: { label: ctx => ' ' + ctx.parsed.y.toFixed(1) + '%' }
+                }
+            },
+            scales: {
+                x: { ticks: { color: TICK, font: { size: 10 }, maxTicksLimit: 8 }, grid: { color: GRID } },
+                y: { min: 0, max: 100, ticks: { color: TICK, font: { size: 10 }, callback: v => v + '%' }, grid: { color: GRID } }
+            }
+        }
+    });
+}
 
-    function copyToken() {
-        const f = document.getElementById('tokenField');
-        navigator.clipboard.writeText(f.value).then(() => alert('Token copied!'));
-    }
-
-    async function loadNodeCharts() {
-        const resp = await fetch(`/api/v1/nodes/${nodeId}/metrics`);
+async function loadCharts() {
+    try {
+        const resp = await fetch(`/api/v1/nodes/${nodeId}/metrics?hours=1`);
         if (!resp.ok) return;
         const data = await resp.json();
-        const labels = data.map(m => new Date(m.createdAt).toLocaleTimeString());
+        if (!data.length) return;
+
+        const labels  = data.map(m => new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
         const cpuData = data.map(m => m.cpuUsagePercent);
         const ramData = data.map(m => m.ramUsagePercent);
-        const chartOpts = (label, color, data) => ({
-            type: 'line',
-            data: { labels, datasets: [{ label, data, borderColor: color, backgroundColor: color + '22', fill: true, tension: 0.3, pointRadius: 0 }] },
-            options: { plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#aaa', maxTicksLimit: 8 } }, y: { min: 0, max: 100, ticks: { color: '#aaa' } } } }
-        });
-        new Chart(document.getElementById('cpuChart'), chartOpts('CPU %', '#0dcaf0', cpuData));
-        new Chart(document.getElementById('ramChart'), chartOpts('RAM %', '#0d6efd', ramData));
+
+        const cpu = makeChart('cpuChart', 'CPU %', '#06b6d4');
+        const ram = makeChart('ramChart', 'RAM %', '#3b82f6');
+
+        cpu.data.labels = labels; cpu.data.datasets[0].data = cpuData; cpu.update();
+        ram.data.labels = labels; ram.data.datasets[0].data = ramData; ram.update();
+
+        const last = data[data.length - 1];
+        document.getElementById('cpuCurrent').textContent = last.cpuUsagePercent.toFixed(1) + '%';
+        document.getElementById('ramCurrent').textContent = last.ramUsagePercent.toFixed(1) + '%';
+    } catch (e) {
+        console.warn('Node chart load failed:', e);
     }
-    loadNodeCharts();
+}
+
+document.addEventListener('DOMContentLoaded', loadCharts);
 </script>
 </body>
 </html>
