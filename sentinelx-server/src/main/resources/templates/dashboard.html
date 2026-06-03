@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body class="bg-dark text-light">
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<div class="container-fluid py-4">
+    <h4 class="mb-4 fw-semibold"><i class="bi bi-speedometer2 me-2 text-primary"></i>Dashboard</h4>
+
+    <!-- Summary cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4 col-xl-2-4">
+            <div class="card bg-secondary border-0 shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-success bg-opacity-25 p-2 me-3">
+                            <i class="bi bi-hdd-network text-success fs-4"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Nodes Online</div>
+                            <div class="fs-3 fw-bold text-success" th:text="${nodesOnline}">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2-4">
+            <div class="card bg-secondary border-0 shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-danger bg-opacity-25 p-2 me-3">
+                            <i class="bi bi-hdd-network text-danger fs-4"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Nodes Offline</div>
+                            <div class="fs-3 fw-bold text-danger" th:text="${nodesOffline}">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2-4">
+            <div class="card bg-secondary border-0 shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-warning bg-opacity-25 p-2 me-3">
+                            <i class="bi bi-bell text-warning fs-4"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Active Alerts</div>
+                            <div class="fs-3 fw-bold text-warning" th:text="${activeAlerts}">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2-4">
+            <div class="card bg-secondary border-0 shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-info bg-opacity-25 p-2 me-3">
+                            <i class="bi bi-cpu text-info fs-4"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Avg CPU</div>
+                            <div class="fs-3 fw-bold text-info" th:text="${avgCpu} + '%'">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2-4">
+            <div class="card bg-secondary border-0 shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-25 p-2 me-3">
+                            <i class="bi bi-memory text-primary fs-4"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small">Avg RAM</div>
+                            <div class="fs-3 fw-bold text-primary" th:text="${avgRam} + '%'">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card bg-secondary border-0 shadow h-100">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <span class="fw-semibold"><i class="bi bi-cpu me-1 text-info"></i>CPU Usage — Last 10 min (avg)</span>
+                </div>
+                <div class="card-body">
+                    <canvas id="cpuChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-secondary border-0 shadow h-100">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <span class="fw-semibold"><i class="bi bi-memory me-1 text-primary"></i>RAM Usage — Last 10 min (avg)</span>
+                </div>
+                <div class="card-body">
+                    <canvas id="ramChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Node health + Alerts row -->
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="card bg-secondary border-0 shadow">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold"><i class="bi bi-hdd-network me-1 text-success"></i>Node Health</span>
+                    <a th:href="@{/nodes}" class="btn btn-sm btn-outline-secondary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0 table-sm">
+                            <thead class="text-muted small">
+                                <tr>
+                                    <th>Node</th>
+                                    <th>Status</th>
+                                    <th>Last Seen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="node : ${nodes}">
+                                    <td>
+                                        <a th:href="@{/nodes/{id}(id=${node.id})}"
+                                           class="text-decoration-none text-light"
+                                           th:text="${node.name}">node</a>
+                                    </td>
+                                    <td>
+                                        <span th:if="${node.status.name() == 'ONLINE'}"
+                                              class="badge bg-success">ONLINE</span>
+                                        <span th:unless="${node.status.name() == 'ONLINE'}"
+                                              class="badge bg-danger">OFFLINE</span>
+                                    </td>
+                                    <td class="text-muted small"
+                                        th:text="${node.lastSeen != null ? #temporals.format(node.lastSeen, 'HH:mm:ss') : 'Never'}">-</td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(nodes)}">
+                                    <td colspan="3" class="text-center text-muted py-3">No nodes registered</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card bg-secondary border-0 shadow">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold"><i class="bi bi-bell me-1 text-warning"></i>Open Alerts</span>
+                    <a th:href="@{/alerts}" class="btn btn-sm btn-outline-secondary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0 table-sm">
+                            <thead class="text-muted small">
+                                <tr>
+                                    <th>Severity</th>
+                                    <th>Title</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="alert : ${recentAlerts}">
+                                    <td>
+                                        <span th:class="'badge ' + (${alert.severity.name() == 'CRITICAL'} ? 'bg-danger' : (${alert.severity.name() == 'WARNING'} ? 'bg-warning text-dark' : 'bg-info text-dark'))"
+                                              th:text="${alert.severity}">SEV</span>
+                                    </td>
+                                    <td class="text-truncate" style="max-width:180px" th:text="${alert.title}">title</td>
+                                    <td class="text-muted small"
+                                        th:text="${#temporals.format(alert.createdAt, 'HH:mm')}">00:00</td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(recentAlerts)}">
+                                    <td colspan="3" class="text-center text-muted py-3">
+                                        <i class="bi bi-check-circle text-success me-1"></i>No open alerts
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmJ6OOBmzQ/GZI6tQJrDRl2/J9"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script th:src="@{/js/dashboard.js}"></script>
+</body>
+</html>

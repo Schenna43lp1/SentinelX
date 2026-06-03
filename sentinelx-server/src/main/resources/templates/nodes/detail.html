@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/layout :: head('Node Detail')}"></head>
+<body class="bg-dark text-light">
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<div class="container-fluid py-4">
+    <div class="d-flex align-items-center mb-4 gap-3">
+        <a th:href="@{/nodes}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h4 class="fw-semibold mb-0" th:text="${node.name}">Node</h4>
+        <span th:if="${node.status.name() == 'ONLINE'}" class="badge bg-success fs-6">ONLINE</span>
+        <span th:unless="${node.status.name() == 'ONLINE'}" class="badge bg-danger fs-6">OFFLINE</span>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show py-2" role="alert">
+        <i class="bi bi-check-circle me-1"></i><span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card bg-secondary border-0 shadow h-100">
+                <div class="card-header bg-transparent border-0 fw-semibold">
+                    <i class="bi bi-info-circle me-1 text-primary"></i>Node Info
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0 small">
+                        <dt class="col-sm-4 text-muted">Hostname</dt>
+                        <dd class="col-sm-8" th:text="${node.hostname}">-</dd>
+                        <dt class="col-sm-4 text-muted">IP Address</dt>
+                        <dd class="col-sm-8" th:text="${node.ipAddress ?: '-'}">-</dd>
+                        <dt class="col-sm-4 text-muted">OS</dt>
+                        <dd class="col-sm-8" th:text="${node.os ?: '-'}">-</dd>
+                        <dt class="col-sm-4 text-muted">Agent Version</dt>
+                        <dd class="col-sm-8" th:text="${node.agentVersion ?: '-'}">-</dd>
+                        <dt class="col-sm-4 text-muted">Tags</dt>
+                        <dd class="col-sm-8" th:text="${node.tags ?: '-'}">-</dd>
+                        <dt class="col-sm-4 text-muted">Last Seen</dt>
+                        <dd class="col-sm-8"
+                            th:text="${node.lastSeen != null ? #temporals.format(node.lastSeen, 'yyyy-MM-dd HH:mm:ss') : 'Never'}">-</dd>
+                        <dt class="col-sm-4 text-muted">Created</dt>
+                        <dd class="col-sm-8"
+                            th:text="${#temporals.format(node.createdAt, 'yyyy-MM-dd HH:mm')}">-</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6" sec:authorize="hasRole('ADMIN')">
+            <div class="card bg-secondary border-0 shadow h-100">
+                <div class="card-header bg-transparent border-0 fw-semibold">
+                    <i class="bi bi-key me-1 text-warning"></i>Agent Token
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">Use this token in <code>agent.yml</code> as <code>agent_token</code>.</p>
+                    <div class="input-group mb-3">
+                        <input type="password" id="tokenField" class="form-control bg-dark border-secondary text-light font-monospace small"
+                               th:value="${node.agentToken}" readonly/>
+                        <button class="btn btn-outline-secondary" type="button"
+                                onclick="toggleToken()"><i class="bi bi-eye" id="toggleIcon"></i></button>
+                        <button class="btn btn-outline-secondary" type="button"
+                                onclick="copyToken()"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <form th:action="@{/nodes/{id}/regenerate-token(id=${node.id})}" method="post"
+                          onsubmit="return confirm('Regenerate token? The agent will need to be reconfigured.')">
+                        <button type="submit" class="btn btn-sm btn-outline-warning">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Regenerate Token
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CPU/RAM charts pulled via API -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card bg-secondary border-0 shadow">
+                <div class="card-header bg-transparent border-0 fw-semibold small">
+                    <i class="bi bi-cpu me-1 text-info"></i>CPU — Last Hour
+                </div>
+                <div class="card-body"><canvas id="cpuChart" height="120"></canvas></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-secondary border-0 shadow">
+                <div class="card-header bg-transparent border-0 fw-semibold small">
+                    <i class="bi bi-memory me-1 text-primary"></i>RAM — Last Hour
+                </div>
+                <div class="card-body"><canvas id="ramChart" height="120"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin actions -->
+    <div sec:authorize="hasRole('ADMIN')" class="d-flex gap-2">
+        <a th:href="@{/nodes/{id}/edit(id=${node.id})}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <form th:action="@{/nodes/{id}/delete(id=${node.id})}" method="post"
+              onsubmit="return confirm('Delete this node? All metrics and alerts will be lost.')">
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-trash me-1"></i>Delete Node
+            </button>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmJ6OOBmzQ/GZI6tQJrDRl2/J9"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+    const nodeId = /*[[${node.id}]]*/ 0;
+
+    function toggleToken() {
+        const f = document.getElementById('tokenField');
+        const icon = document.getElementById('toggleIcon');
+        if (f.type === 'password') { f.type = 'text'; icon.className = 'bi bi-eye-slash'; }
+        else { f.type = 'password'; icon.className = 'bi bi-eye'; }
+    }
+
+    function copyToken() {
+        const f = document.getElementById('tokenField');
+        navigator.clipboard.writeText(f.value).then(() => alert('Token copied!'));
+    }
+
+    async function loadNodeCharts() {
+        const resp = await fetch(`/api/v1/nodes/${nodeId}/metrics`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const labels = data.map(m => new Date(m.createdAt).toLocaleTimeString());
+        const cpuData = data.map(m => m.cpuUsagePercent);
+        const ramData = data.map(m => m.ramUsagePercent);
+        const chartOpts = (label, color, data) => ({
+            type: 'line',
+            data: { labels, datasets: [{ label, data, borderColor: color, backgroundColor: color + '22', fill: true, tension: 0.3, pointRadius: 0 }] },
+            options: { plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#aaa', maxTicksLimit: 8 } }, y: { min: 0, max: 100, ticks: { color: '#aaa' } } } }
+        });
+        new Chart(document.getElementById('cpuChart'), chartOpts('CPU %', '#0dcaf0', cpuData));
+        new Chart(document.getElementById('ramChart'), chartOpts('RAM %', '#0d6efd', ramData));
+    }
+    loadNodeCharts();
+</script>
+</body>
+</html>
