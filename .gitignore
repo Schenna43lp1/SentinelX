@@ -53,6 +53,8 @@ replay_pid*
 
 # Package Files
 *.jar
+# Allow bundled agent JAR served for download
+!sentinelx-server/src/main/resources/downloads/sentinel-agent.jar
 *.war
 *.nar
 *.ear

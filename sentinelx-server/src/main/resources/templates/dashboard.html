@@ -12,6 +12,34 @@
 
         <div class="sx-content">
 
+            <!-- Agent download bar -->
+            <div id="agentDownloadBar" class="sx-agent-bar" style="display:none;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <div class="sx-agent-bar-icon">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:13px;font-weight:600;color:var(--sx-text);">SentinelX Agent</div>
+                        <div style="font-size:11.5px;color:var(--sx-text-muted);">Standalone JAR — install on any monitored host</div>
+                    </div>
+                    <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <code style="font-size:11px;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:5px;color:var(--sx-text-dim);border:1px solid var(--sx-border);">
+                            java -jar sentinel-agent.jar
+                        </code>
+                        <a href="/download/agent"
+                           class="sx-btn sx-btn-primary sx-btn-sm"
+                           download="sentinel-agent.jar">
+                            <i class="bi bi-download"></i> Download Agent
+                        </a>
+                        <a href="https://github.com/Schenna43lp1/SentinelX/blob/main/docs/setup.md"
+                           target="_blank" rel="noopener"
+                           class="sx-btn sx-btn-ghost sx-btn-sm">
+                            <i class="bi bi-book"></i> Docs
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Stat cards -->
             <div class="row g-3 mb-4" style="--bs-gutter-x:14px;">
                 <div class="col-6 col-md-4 col-xl-2-4">
@@ -194,5 +222,10 @@
 <div th:replace="~{fragments/layout :: scripts}"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script th:src="@{/js/dashboard.js}"></script>
+<script>
+    fetch('/download/agent/available')
+        .then(r => { if (r.ok) document.getElementById('agentDownloadBar').style.display = 'block'; })
+        .catch(() => {});
+</script>
 </body>
 </html>
