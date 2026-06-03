@@ -51,11 +51,17 @@ public class MetricsPusher {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() == 200) {
-            log.info("Registered with server. Response: {}", response.body());
-            // If token was empty, advise the user to copy it from the response and set agent.yml
-            if (config.getAgentToken().isBlank()) {
-                log.warn("No agent_token set in agent.yml. Copy the token from the server response " +
-                    "or from the SentinelX UI and update agent.yml, then restart the agent.");
+            try {
+                var root = objectMapper.readTree(response.body());
+                String returnedToken = root.path("agentToken").asText("");
+                if (!returnedToken.isBlank()) {
+                    config.setAgentToken(returnedToken);
+                    log.info("Registered successfully. Node ID: {}", root.path("nodeId").asLong());
+                } else {
+                    log.warn("Registration response contained no agentToken — metrics push will be skipped.");
+                }
+            } catch (Exception e) {
+                log.error("Failed to parse registration response: {}", e.getMessage());
             }
         } else {
             log.error("Registration failed: HTTP {} — {}", response.statusCode(), response.body());
@@ -92,7 +98,7 @@ public class MetricsPusher {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() == 200) {
-            log.debug("Metrics pushed: CPU={}% RAM={}%",
+            log.info("Metrics pushed: CPU={}% RAM={}%",
                 String.format("%.1f", snap.getCpuUsagePercent()),
                 String.format("%.1f", snap.getRamUsagePercent()));
         } else {

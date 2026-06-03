@@ -39,6 +39,7 @@ public class AgentApiController {
         Node node = nodeService.findAll().stream()
             .filter(n -> n.getHostname().equalsIgnoreCase(request.getHostname()))
             .findFirst()
+            .map(existing -> nodeService.heartbeat(existing.getId(), request.getAgentVersion(), request.getOs()))
             .orElseGet(() -> {
                 Node newNode = new Node();
                 newNode.setName(request.getNodeName());
@@ -46,7 +47,9 @@ public class AgentApiController {
                 newNode.setIpAddress(request.getIpAddress());
                 newNode.setOs(request.getOs());
                 newNode.setAgentVersion(request.getAgentVersion());
-                return nodeService.create(newNode);
+                Node created = nodeService.create(newNode);
+                // Immediately mark ONLINE so the node doesn't appear stale on first view
+                return nodeService.heartbeat(created.getId(), request.getAgentVersion(), request.getOs());
             });
 
         return ResponseEntity.status(HttpStatus.OK).body(

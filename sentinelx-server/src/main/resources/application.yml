@@ -46,7 +46,7 @@ server:
 sentinelx:
   agent:
     # Seconds after which a node is considered offline
-    timeout-seconds: ${AGENT_TIMEOUT_SECONDS:60}
+    timeout-seconds: ${AGENT_TIMEOUT_SECONDS:90}
   monitoring:
     # Interval in seconds for running HTTP/ping checks
     check-interval-seconds: ${CHECK_INTERVAL_SECONDS:30}
