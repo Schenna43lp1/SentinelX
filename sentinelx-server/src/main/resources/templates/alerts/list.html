@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="~{fragments/layout :: head('Alerts')}"></head>
+<body class="bg-dark text-light">
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<div class="container-fluid py-4">
+    <h4 class="fw-semibold mb-4"><i class="bi bi-bell me-2 text-warning"></i>Alerts</h4>
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show py-2" role="alert">
+        <i class="bi bi-check-circle me-1"></i><span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="card bg-secondary border-0 shadow">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0">
+                    <thead class="text-muted small">
+                        <tr>
+                            <th>Severity</th>
+                            <th>Type</th>
+                            <th>Title</th>
+                            <th>Node</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Acknowledged</th>
+                            <th sec:authorize="hasRole('ADMIN')">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="alert : ${alerts}"
+                            th:class="${alert.status.name() == 'ACKNOWLEDGED'} ? 'opacity-50' : ''">
+                            <td>
+                                <span th:class="'badge ' + (${alert.severity.name() == 'CRITICAL'} ? 'bg-danger' : (${alert.severity.name() == 'WARNING'} ? 'bg-warning text-dark' : 'bg-info text-dark'))"
+                                      th:text="${alert.severity}">SEV</span>
+                            </td>
+                            <td class="text-muted small font-monospace" th:text="${alert.type}">TYPE</td>
+                            <td th:text="${alert.title}">title</td>
+                            <td>
+                                <a th:if="${alert.node != null}"
+                                   th:href="@{/nodes/{id}(id=${alert.node.id})}"
+                                   class="text-decoration-none text-light"
+                                   th:text="${alert.node.name}">node</a>
+                                <span th:unless="${alert.node != null}" class="text-muted">—</span>
+                            </td>
+                            <td>
+                                <span th:if="${alert.status.name() == 'OPEN'}" class="badge bg-danger">OPEN</span>
+                                <span th:unless="${alert.status.name() == 'OPEN'}" class="badge bg-secondary">ACK</span>
+                            </td>
+                            <td class="text-muted small"
+                                th:text="${#temporals.format(alert.createdAt, 'yyyy-MM-dd HH:mm')}">-</td>
+                            <td class="text-muted small"
+                                th:text="${alert.acknowledgedAt != null ? #temporals.format(alert.acknowledgedAt, 'HH:mm') + ' by ' + alert.acknowledgedBy : '-'}">-</td>
+                            <td sec:authorize="hasRole('ADMIN')">
+                                <form th:if="${alert.status.name() == 'OPEN'}"
+                                      th:action="@{/alerts/{id}/ack(id=${alert.id})}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Acknowledge">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(alerts)}">
+                            <td colspan="8" class="text-center text-muted py-4">
+                                <i class="bi bi-check-circle-fill text-success fs-3 d-block mb-2"></i>
+                                No alerts found.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmJ6OOBmzQ/GZI6tQJrDRl2/J9"
+        crossorigin="anonymous"></script>
+</body>
+</html>
