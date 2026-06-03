@@ -1,94 +1,123 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head th:replace="~{fragments/layout :: head('Settings')}"></head>
-<body class="bg-dark text-light">
+<body>
 
-<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="sx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('settings')}"></div>
 
-<div class="container py-4" style="max-width: 680px;">
-    <h4 class="fw-semibold mb-4"><i class="bi bi-gear me-2 text-primary"></i>Settings</h4>
+    <div class="sx-main">
+        <div th:replace="~{fragments/layout :: topbar('Settings', 'bi-sliders')}"></div>
 
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show py-2" role="alert">
-        <i class="bi bi-check-circle me-1"></i><span th:text="${successMessage}"></span>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-    </div>
+        <div class="sx-content">
 
-    <form th:action="@{/settings}" method="post">
-
-        <!-- Telegram -->
-        <div class="card bg-secondary border-0 shadow mb-4">
-            <div class="card-header bg-transparent border-0 fw-semibold">
-                <i class="bi bi-telegram me-1 text-info"></i>Telegram Notifications
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label small text-muted">Bot Token</label>
-                    <input type="password" name="telegramBotToken"
-                           class="form-control bg-dark border-secondary text-light font-monospace"
-                           th:value="${telegramBotToken}"
-                           placeholder="123456789:ABCdef..."/>
-                    <div class="form-text text-muted">Obtain from @BotFather on Telegram.</div>
-                </div>
-                <div class="mb-0">
-                    <label class="form-label small text-muted">Chat ID</label>
-                    <input type="text" name="telegramChatId"
-                           class="form-control bg-dark border-secondary text-light"
-                           th:value="${telegramChatId}"
-                           placeholder="-100123456789"/>
-                    <div class="form-text text-muted">Negative for group chats, positive for direct.</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Alert Thresholds -->
-        <div class="card bg-secondary border-0 shadow mb-4">
-            <div class="card-header bg-transparent border-0 fw-semibold">
-                <i class="bi bi-sliders me-1 text-warning"></i>Alert Thresholds
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label small text-muted">CPU Threshold (%)</label>
-                        <input type="number" name="cpuThreshold" min="1" max="100"
-                               class="form-control bg-dark border-secondary text-light"
-                               th:value="${cpuThreshold}"/>
-                        <div class="form-text text-muted">Raise WARNING when CPU exceeds this value.</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small text-muted">RAM Threshold (%)</label>
-                        <input type="number" name="ramThreshold" min="1" max="100"
-                               class="form-control bg-dark border-secondary text-light"
-                               th:value="${ramThreshold}"/>
-                        <div class="form-text text-muted">Raise WARNING when RAM exceeds this value.</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Agent -->
-        <div class="card bg-secondary border-0 shadow mb-4">
-            <div class="card-header bg-transparent border-0 fw-semibold">
-                <i class="bi bi-activity me-1 text-success"></i>Agent Settings
-            </div>
-            <div class="card-body">
+            <div class="sx-page-header">
                 <div>
-                    <label class="form-label small text-muted">Agent Timeout (seconds)</label>
-                    <input type="number" name="agentTimeoutSeconds" min="10" max="3600"
-                           class="form-control bg-dark border-secondary text-light"
-                           th:value="${agentTimeoutSeconds}"/>
-                    <div class="form-text text-muted">Seconds without a heartbeat before a node is marked OFFLINE.</div>
+                    <h1 class="sx-page-title">Settings</h1>
+                    <p class="sx-page-subtitle">Platform configuration — admin only</p>
                 </div>
             </div>
-        </div>
 
-        <button type="submit" class="btn btn-primary">
-            <i class="bi bi-save me-1"></i>Save Settings
-        </button>
-    </form>
+            <div th:if="${successMessage}" class="sx-flash sx-flash-success">
+                <i class="bi bi-check-circle-fill"></i>
+                <span th:text="${successMessage}"></span>
+                <button class="sx-flash-dismiss" type="button">&times;</button>
+            </div>
+
+            <form th:action="@{/settings}" method="post" style="max-width:680px;">
+
+                <!-- Telegram -->
+                <div class="sx-card" style="margin-bottom:16px;">
+                    <div class="sx-card-header">
+                        <span class="sx-card-title">
+                            <i class="bi bi-telegram" style="color:var(--sx-cyan);"></i>
+                            Telegram Notifications
+                        </span>
+                    </div>
+                    <div class="sx-card-body">
+                        <div style="margin-bottom:14px;">
+                            <label class="sx-form-label">Bot Token</label>
+                            <input type="password" name="telegramBotToken"
+                                   class="sx-input sx-mono"
+                                   th:value="${telegramBotToken}"
+                                   placeholder="123456789:ABCdef…"/>
+                            <p style="font-size:11.5px;color:var(--sx-text-muted);margin-top:5px;">
+                                Obtain from <strong>@BotFather</strong> on Telegram.
+                            </p>
+                        </div>
+                        <div>
+                            <label class="sx-form-label">Chat ID</label>
+                            <input type="text" name="telegramChatId"
+                                   class="sx-input"
+                                   th:value="${telegramChatId}"
+                                   placeholder="-100123456789"/>
+                            <p style="font-size:11.5px;color:var(--sx-text-muted);margin-top:5px;">
+                                Negative for group chats, positive for direct messages.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert Thresholds -->
+                <div class="sx-card" style="margin-bottom:16px;">
+                    <div class="sx-card-header">
+                        <span class="sx-card-title">
+                            <i class="bi bi-activity" style="color:var(--sx-yellow);"></i>
+                            Alert Thresholds
+                        </span>
+                    </div>
+                    <div class="sx-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="sx-form-label">CPU Threshold (%)</label>
+                                <input type="number" name="cpuThreshold" min="1" max="100"
+                                       class="sx-input"
+                                       th:value="${cpuThreshold}"/>
+                                <p style="font-size:11.5px;color:var(--sx-text-muted);margin-top:5px;">
+                                    Raise WARNING when CPU exceeds this value.
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="sx-form-label">RAM Threshold (%)</label>
+                                <input type="number" name="ramThreshold" min="1" max="100"
+                                       class="sx-input"
+                                       th:value="${ramThreshold}"/>
+                                <p style="font-size:11.5px;color:var(--sx-text-muted);margin-top:5px;">
+                                    Raise WARNING when RAM exceeds this value.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent Settings -->
+                <div class="sx-card" style="margin-bottom:24px;">
+                    <div class="sx-card-header">
+                        <span class="sx-card-title">
+                            <i class="bi bi-hdd-network" style="color:var(--sx-green);"></i>
+                            Agent Settings
+                        </span>
+                    </div>
+                    <div class="sx-card-body">
+                        <label class="sx-form-label">Agent Timeout (seconds)</label>
+                        <input type="number" name="agentTimeoutSeconds" min="10" max="3600"
+                               class="sx-input" style="max-width:200px;"
+                               th:value="${agentTimeoutSeconds}"/>
+                        <p style="font-size:11.5px;color:var(--sx-text-muted);margin-top:5px;">
+                            Seconds without a heartbeat before a node is marked OFFLINE.
+                        </p>
+                    </div>
+                </div>
+
+                <button type="submit" class="sx-btn sx-btn-primary">
+                    <i class="bi bi-floppy"></i> Save Settings
+                </button>
+            </form>
+
+        </div>
+    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmJ6OOBmzQ/GZI6tQJrDRl2/J9"
-        crossorigin="anonymous"></script>
+<div th:replace="~{fragments/layout :: scripts}"></div>
 </body>
 </html>

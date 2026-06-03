@@ -1,66 +1,89 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head th:replace="~{fragments/layout :: head('Node')}"></head>
-<body class="bg-dark text-light">
+<body>
 
-<div th:replace="~{fragments/layout :: navbar}"></div>
+<div class="sx-wrapper">
+    <div th:replace="~{fragments/layout :: sidebar('nodes')}"></div>
 
-<div class="container py-4" style="max-width: 640px;">
-    <div class="d-flex align-items-center mb-4">
-        <a th:href="@{/nodes}" class="btn btn-sm btn-outline-secondary me-3">
-            <i class="bi bi-arrow-left"></i>
-        </a>
-        <h4 class="fw-semibold mb-0"
-            th:text="${mode == 'create'} ? 'Add Node' : 'Edit Node'">Node</h4>
-    </div>
+    <div class="sx-main">
+        <!-- Topbar with back button -->
+        <header class="sx-topbar">
+            <a th:href="@{/nodes}" class="sx-topbar-icon-btn" title="Back to Nodes">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <div class="sx-topbar-title">
+                <i class="bi bi-hdd-network"></i>
+                <span th:text="${mode == 'create'} ? 'Add Node' : 'Edit Node'">Node</span>
+            </div>
+            <div class="sx-topbar-spacer"></div>
+        </header>
 
-    <div class="card bg-secondary border-0 shadow">
-        <div class="card-body">
-            <form th:action="${mode == 'create'} ? @{/nodes/new} : @{/nodes/{id}/edit(id=${node.id})}"
-                  th:object="${node}" method="post">
+        <div class="sx-content">
 
-                <div class="mb-3">
-                    <label class="form-label small text-muted">Display Name <span class="text-danger">*</span></label>
-                    <input type="text" th:field="*{name}" class="form-control bg-dark border-secondary text-light"
-                           placeholder="e.g. Home Server" required/>
+            <div class="sx-card" style="max-width:600px;">
+                <div class="sx-card-header">
+                    <span class="sx-card-title">
+                        <i th:class="${mode == 'create'} ? 'bi bi-plus-circle' : 'bi bi-pencil'"></i>
+                        <span th:text="${mode == 'create'} ? 'New Node' : 'Edit Node'">Node</span>
+                    </span>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label small text-muted">Hostname <span class="text-danger">*</span></label>
-                    <input type="text" th:field="*{hostname}" class="form-control bg-dark border-secondary text-light"
-                           placeholder="e.g. homeserver.local" required/>
-                </div>
-                <div class="row g-3 mb-3">
-                    <div class="col">
-                        <label class="form-label small text-muted">IP Address</label>
-                        <input type="text" th:field="*{ipAddress}" class="form-control bg-dark border-secondary text-light"
-                               placeholder="192.168.1.100"/>
-                    </div>
-                    <div class="col">
-                        <label class="form-label small text-muted">OS</label>
-                        <input type="text" th:field="*{os}" class="form-control bg-dark border-secondary text-light"
-                               placeholder="e.g. Ubuntu 24.04"/>
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <label class="form-label small text-muted">Tags <span class="text-muted">(comma-separated)</span></label>
-                    <input type="text" th:field="*{tags}" class="form-control bg-dark border-secondary text-light"
-                           placeholder="e.g. homelab, production"/>
-                </div>
+                <div class="sx-card-body">
+                    <form th:action="${mode == 'create'} ? @{/nodes/new} : @{/nodes/{id}/edit(id=${node.id})}"
+                          th:object="${node}" method="post">
 
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-circle me-1"></i>
-                        <span th:text="${mode == 'create'} ? 'Create Node' : 'Save Changes'">Save</span>
-                    </button>
-                    <a th:href="@{/nodes}" class="btn btn-outline-secondary">Cancel</a>
+                        <div style="margin-bottom:14px;">
+                            <label class="sx-form-label">
+                                Display Name <span style="color:var(--sx-red);">*</span>
+                            </label>
+                            <input type="text" th:field="*{name}" class="sx-input"
+                                   placeholder="e.g. Home Server" required/>
+                        </div>
+
+                        <div style="margin-bottom:14px;">
+                            <label class="sx-form-label">
+                                Hostname <span style="color:var(--sx-red);">*</span>
+                            </label>
+                            <input type="text" th:field="*{hostname}" class="sx-input"
+                                   placeholder="e.g. homeserver.local" required/>
+                        </div>
+
+                        <div class="row g-3" style="margin-bottom:14px;">
+                            <div class="col-md-6">
+                                <label class="sx-form-label">IP Address</label>
+                                <input type="text" th:field="*{ipAddress}" class="sx-input"
+                                       placeholder="192.168.1.100"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="sx-form-label">OS</label>
+                                <input type="text" th:field="*{os}" class="sx-input"
+                                       placeholder="e.g. Ubuntu 24.04"/>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:24px;">
+                            <label class="sx-form-label">
+                                Tags <span style="color:var(--sx-text-muted);font-weight:400;">(comma-separated)</span>
+                            </label>
+                            <input type="text" th:field="*{tags}" class="sx-input"
+                                   placeholder="e.g. homelab, production"/>
+                        </div>
+
+                        <div style="display:flex;gap:10px;">
+                            <button type="submit" class="sx-btn sx-btn-primary">
+                                <i th:class="${mode == 'create'} ? 'bi bi-plus-lg' : 'bi bi-floppy'"></i>
+                                <span th:text="${mode == 'create'} ? 'Create Node' : 'Save Changes'">Save</span>
+                            </button>
+                            <a th:href="@{/nodes}" class="sx-btn sx-btn-ghost">Cancel</a>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
+
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmJ6OOBmzQ/GZI6tQJrDRl2/J9"
-        crossorigin="anonymous"></script>
+<div th:replace="~{fragments/layout :: scripts}"></div>
 </body>
 </html>
