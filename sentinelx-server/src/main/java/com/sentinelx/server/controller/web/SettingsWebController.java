@@ -38,11 +38,11 @@ public class SettingsWebController {
 
     @PostMapping
     public String saveSettings(
-            @RequestParam(required = false, defaultValue = "") String telegramBotToken,
-            @RequestParam(required = false, defaultValue = "") String telegramChatId,
-            @RequestParam(defaultValue = "90") String cpuThreshold,
-            @RequestParam(defaultValue = "90") String ramThreshold,
-            @RequestParam(defaultValue = "60") String agentTimeoutSeconds,
+            @RequestParam(value = "telegramBotToken", required = false, defaultValue = "") String telegramBotToken,
+            @RequestParam(value = "telegramChatId", required = false, defaultValue = "") String telegramChatId,
+            @RequestParam(value = "cpuThreshold", defaultValue = "90") String cpuThreshold,
+            @RequestParam(value = "ramThreshold", defaultValue = "90") String ramThreshold,
+            @RequestParam(value = "agentTimeoutSeconds", defaultValue = "60") String agentTimeoutSeconds,
             RedirectAttributes redirectAttributes) {
 
         settingService.setValue(SettingService.KEY_TELEGRAM_BOT_TOKEN, telegramBotToken);

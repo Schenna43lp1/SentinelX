@@ -70,7 +70,7 @@ public class MetricsPusher {
 
     public void push(MetricsSnapshot snap) throws Exception {
         if (config.getAgentToken().isBlank()) {
-            log.warn("Skipping metric push: agent_token not configured.");
+            log.warn("Skipping metric push — no token yet. Waiting for registration to complete.");
             return;
         }
 

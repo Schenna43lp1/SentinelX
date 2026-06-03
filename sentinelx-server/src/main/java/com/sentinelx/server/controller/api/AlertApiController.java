@@ -30,7 +30,7 @@ public class AlertApiController {
 
     @PostMapping("/{id}/ack")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AlertDto> acknowledge(@PathVariable Long id, Authentication auth) {
+    public ResponseEntity<AlertDto> acknowledge(@PathVariable("id") Long id, Authentication auth) {
         try {
             return ResponseEntity.ok(AlertDto.from(alertService.acknowledge(id, auth.getName())));
         } catch (IllegalArgumentException e) {

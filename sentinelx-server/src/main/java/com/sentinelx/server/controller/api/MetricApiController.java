@@ -27,8 +27,8 @@ public class MetricApiController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
     public ResponseEntity<List<Map<String, Object>>> getMetrics(
-            @PathVariable Long nodeId,
-            @RequestParam(defaultValue = "1") int hours) {
+            @PathVariable("nodeId") Long nodeId,
+            @RequestParam(value = "hours", defaultValue = "1") int hours) {
 
         Node node = nodeService.findById(nodeId)
             .orElseThrow(() -> new IllegalArgumentException("Node not found: " + nodeId));

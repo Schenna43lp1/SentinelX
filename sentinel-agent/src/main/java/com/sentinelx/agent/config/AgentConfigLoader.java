@@ -32,8 +32,7 @@ public class AgentConfigLoader {
         config.setIntervalSeconds(getInt(raw, "interval_seconds", 30));
 
         if (config.getAgentToken().isBlank()) {
-            log.warn("agent_token is not set in {}. " +
-                "The agent will attempt registration but cannot push metrics until a token is configured.", CONFIG_FILE);
+            log.info("agent_token not set — will register with server and obtain token automatically.");
         }
 
         return config;

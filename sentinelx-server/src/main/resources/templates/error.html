@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="'Error ' + ${status} + ' — SentinelX'">Error — SentinelX</title>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"/>
+    <link rel="stylesheet" th:href="@{/css/sentinelx.css}"/>
+</head>
+<body style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--sx-bg);">
+<div style="text-align:center;max-width:480px;padding:40px;">
+    <i class="bi bi-exclamation-triangle" style="font-size:48px;color:var(--sx-red);display:block;margin-bottom:20px;"></i>
+    <h1 style="font-size:22px;font-weight:700;margin-bottom:8px;" th:text="'Error ' + ${status}">Error</h1>
+    <p style="color:var(--sx-text-muted);margin-bottom:24px;" th:text="${error}">Something went wrong.</p>
+    <a th:href="@{/dashboard}" class="sx-btn sx-btn-primary">
+        <i class="bi bi-house"></i> Back to Dashboard
+    </a>
+</div>
+</body>
+</html>

@@ -45,7 +45,7 @@ public class NodeWebController {
 
     @GetMapping("/{id}/edit")
     @PreAuthorize("hasRole('ADMIN')")
-    public String editForm(@PathVariable Long id, Model model) {
+    public String editForm(@PathVariable("id") Long id, Model model) {
         Node node = nodeService.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Node not found: " + id));
         model.addAttribute("node", node);
@@ -55,7 +55,7 @@ public class NodeWebController {
 
     @PostMapping("/{id}/edit")
     @PreAuthorize("hasRole('ADMIN')")
-    public String updateNode(@PathVariable Long id,
+    public String updateNode(@PathVariable("id") Long id,
                              @ModelAttribute("node") Node node,
                              RedirectAttributes redirectAttributes) {
         nodeService.update(id, node);
@@ -65,14 +65,14 @@ public class NodeWebController {
 
     @PostMapping("/{id}/delete")
     @PreAuthorize("hasRole('ADMIN')")
-    public String deleteNode(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deleteNode(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         nodeService.delete(id);
         redirectAttributes.addFlashAttribute("successMessage", "Node deleted.");
         return "redirect:/nodes";
     }
 
     @GetMapping("/{id}")
-    public String nodeDetail(@PathVariable Long id, Model model) {
+    public String nodeDetail(@PathVariable("id") Long id, Model model) {
         Node node = nodeService.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Node not found: " + id));
         model.addAttribute("node", node);
@@ -81,7 +81,7 @@ public class NodeWebController {
 
     @PostMapping("/{id}/regenerate-token")
     @PreAuthorize("hasRole('ADMIN')")
-    public String regenerateToken(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String regenerateToken(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         Node node = nodeService.regenerateToken(id);
         redirectAttributes.addFlashAttribute("successMessage", "Token regenerated: " + node.getAgentToken());
         return "redirect:/nodes/" + id;

@@ -34,6 +34,11 @@
                 <span th:text="${successMessage}"></span>
                 <button class="sx-flash-dismiss" type="button">&times;</button>
             </div>
+            <div th:if="${errorMessage}" class="sx-flash sx-flash-error">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span th:text="${errorMessage}"></span>
+                <button class="sx-flash-dismiss" type="button">&times;</button>
+            </div>
 
             <div class="sx-card">
                 <div class="sx-card-body-flush">

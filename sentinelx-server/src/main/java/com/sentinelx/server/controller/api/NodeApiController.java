@@ -29,7 +29,7 @@ public class NodeApiController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'VIEWER')")
-    public ResponseEntity<NodeDto> getNode(@PathVariable Long id) {
+    public ResponseEntity<NodeDto> getNode(@PathVariable("id") Long id) {
         return nodeService.findById(id)
             .map(NodeDto::from)
             .map(ResponseEntity::ok)

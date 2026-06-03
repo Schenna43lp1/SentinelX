@@ -26,7 +26,7 @@ public class AlertWebController {
 
     @PostMapping("/{id}/ack")
     @PreAuthorize("hasRole('ADMIN')")
-    public String acknowledge(@PathVariable Long id,
+    public String acknowledge(@PathVariable("id") Long id,
                               Authentication auth,
                               RedirectAttributes redirectAttributes) {
         alertService.acknowledge(id, auth.getName());
