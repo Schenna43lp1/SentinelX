@@ -4,71 +4,148 @@
 <head th:fragment="head(title)">
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title th:text="${title} + ' | SentinelX'">SentinelX</title>
-    <!-- Bootstrap 5 -->
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-          crossorigin="anonymous"/>
-    <!-- Bootstrap Icons -->
+    <title th:text="${title} + ' — SentinelX'">SentinelX</title>
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"/>
     <link rel="stylesheet" th:href="@{/css/sentinelx.css}"/>
 </head>
 <body>
 
-<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold text-primary" th:href="@{/dashboard}">
-            <i class="bi bi-shield-check me-1"></i>SentinelX
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarMain">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarMain">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/dashboard}">
-                        <i class="bi bi-speedometer2 me-1"></i>Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/nodes}">
-                        <i class="bi bi-hdd-network me-1"></i>Nodes
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/alerts}">
-                        <i class="bi bi-bell me-1"></i>Alerts
-                    </a>
-                </li>
-                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/settings}">
-                        <i class="bi bi-gear me-1"></i>Settings
-                    </a>
-                </li>
-            </ul>
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle me-1"></i>
-                        <span sec:authentication="name">User</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
-                        <li>
-                            <form th:action="@{/logout}" method="post" class="d-inline">
-                                <button type="submit" class="dropdown-item">
-                                    <i class="bi bi-box-arrow-right me-1"></i>Logout
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+<!--
+  SIDEBAR FRAGMENT
+  Usage: th:replace="~{fragments/layout :: sidebar('dashboard')}"
+  Pass the active page key as argument.
+-->
+<aside th:fragment="sidebar(active)" class="sx-sidebar">
+
+    <!-- Brand -->
+    <a class="sx-sidebar-brand" th:href="@{/dashboard}">
+        <div class="sx-brand-icon">
+            <i class="bi bi-shield-check"></i>
         </div>
+        <span class="sx-brand-name">SentinelX</span>
+    </a>
+
+    <!-- Nav -->
+    <ul class="sx-nav">
+        <li class="sx-nav-section"><span>Monitor</span></li>
+
+        <li class="sx-nav-item">
+            <a class="sx-nav-link"
+               th:classappend="${active == 'dashboard'} ? ' active'"
+               th:href="@{/dashboard}">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <li class="sx-nav-item">
+            <a class="sx-nav-link"
+               th:classappend="${active == 'nodes'} ? ' active'"
+               th:href="@{/nodes}">
+                <i class="bi bi-hdd-network"></i>
+                <span>Nodes</span>
+            </a>
+        </li>
+
+        <li class="sx-nav-item">
+            <a class="sx-nav-link"
+               th:classappend="${active == 'alerts'} ? ' active'"
+               th:href="@{/alerts}">
+                <i class="bi bi-bell"></i>
+                <span>Alerts</span>
+                <span th:if="${activeAlertCount != null and activeAlertCount > 0}"
+                      class="sx-nav-badge"
+                      th:text="${activeAlertCount}">0</span>
+            </a>
+        </li>
+
+        <li class="sx-nav-section" sec:authorize="hasRole('ADMIN')"><span>System</span></li>
+
+        <li class="sx-nav-item" sec:authorize="hasRole('ADMIN')">
+            <a class="sx-nav-link"
+               th:classappend="${active == 'settings'} ? ' active'"
+               th:href="@{/settings}">
+                <i class="bi bi-sliders"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+    </ul>
+
+    <!-- Footer -->
+    <div class="sx-sidebar-footer">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="sx-btn sx-btn-ghost" style="width:100%; justify-content:center;">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </button>
+        </form>
     </div>
-</nav>
+</aside>
+
+<!--
+  TOPBAR FRAGMENT
+  Usage: th:replace="~{fragments/layout :: topbar('Page Title', 'bi-icon')}"
+-->
+<header th:fragment="topbar(title, icon)" class="sx-topbar">
+    <div class="sx-topbar-title">
+        <i th:class="'bi ' + ${icon}"></i>
+        <span th:text="${title}">Page</span>
+    </div>
+    <div class="sx-topbar-spacer"></div>
+
+    <!-- Refresh indicator -->
+    <span id="refreshIndicator" class="sx-topbar-btn" style="font-size:11px; cursor:default; display:none;">
+        <i class="bi bi-arrow-clockwise"></i> Refreshing…
+    </span>
+
+    <!-- Alerts icon -->
+    <a th:href="@{/alerts}" class="sx-topbar-icon-btn" title="Alerts">
+        <i class="bi bi-bell"></i>
+        <span th:if="${activeAlertCount != null and activeAlertCount > 0}" class="sx-alert-dot"></span>
+    </a>
+
+    <!-- User chip + dropdown -->
+    <div class="dropdown">
+        <div class="sx-user-chip dropdown-toggle" data-bs-toggle="dropdown" style="cursor:pointer">
+            <div class="sx-user-avatar">
+                <span sec:authentication="name" th:text="${#strings.substring(#authentication.name,0,1).toUpperCase()}">U</span>
+            </div>
+            <span class="sx-user-name" sec:authentication="name">User</span>
+        </div>
+        <ul class="dropdown-menu dropdown-menu-end" style="background:var(--sx-card);border-color:var(--sx-border);min-width:160px;">
+            <li>
+                <span class="dropdown-item-text" style="color:var(--sx-text-muted);font-size:11px;padding:8px 14px;">
+                    Signed in as<br>
+                    <strong style="color:var(--sx-text)" sec:authentication="name">User</strong>
+                </span>
+            </li>
+            <li><hr class="dropdown-divider" style="border-color:var(--sx-border);"/></li>
+            <li>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="dropdown-item"
+                            style="color:var(--sx-red);font-size:13px;background:transparent;border:none;width:100%;text-align:left;padding:8px 14px;cursor:pointer;">
+                        <i class="bi bi-box-arrow-right me-2"></i>Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</header>
+
+<!--
+  SCRIPTS FRAGMENT
+  Usage: th:replace="~{fragments/layout :: scripts}"
+-->
+<div th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmJ6OOBmzQ/GZI6tQJrDRl2/J9"
+            crossorigin="anonymous"></script>
+    <script th:src="@{/js/main.js}"></script>
+</div>
 
 </body>
 </html>
