@@ -72,34 +72,6 @@
                                     <td class="muted" th:text="${node.hostname}">—</td>
                                     <td class="muted" style="font-size:12px;" th:text="${node.ipAddress ?: '—'}">—</td>
                                     <td class="muted" style="font-size:12px;" th:text="${node.os ?: '—'}">—</td>
-                                    <!-- CPU bar -->
-                                    <td style="min-width:80px;">
-                                        <span th:if="${node.lastCpu != null}"
-                                              th:text="${node.lastCpu} + '%'"
-                                              style="font-size:12px;font-weight:600;"
-                                              th:style="${node.lastCpu >= 90} ? 'color:var(--sx-red)' : (${node.lastCpu >= 70} ? 'color:var(--sx-yellow)' : 'color:var(--sx-green)')">—</span>
-                                        <div th:if="${node.lastCpu != null}"
-                                             class="sx-progress-wrap"
-                                             th:classappend="${node.lastCpu >= 90} ? ' sx-progress--red' : (${node.lastCpu >= 70} ? ' sx-progress--yellow' : ' sx-progress--green')">
-                                            <div class="sx-progress-bar"
-                                                 th:style="'width:' + ${node.lastCpu} + '%'"></div>
-                                        </div>
-                                        <span th:unless="${node.lastCpu != null}" class="muted" style="font-size:12px;">—</span>
-                                    </td>
-                                    <!-- RAM bar -->
-                                    <td style="min-width:80px;">
-                                        <span th:if="${node.lastRam != null}"
-                                              th:text="${node.lastRam} + '%'"
-                                              style="font-size:12px;font-weight:600;"
-                                              th:style="${node.lastRam >= 90} ? 'color:var(--sx-red)' : (${node.lastRam >= 70} ? 'color:var(--sx-yellow)' : 'color:var(--sx-green)')">—</span>
-                                        <div th:if="${node.lastRam != null}"
-                                             class="sx-progress-wrap"
-                                             th:classappend="${node.lastRam >= 90} ? ' sx-progress--red' : (${node.lastRam >= 70} ? ' sx-progress--yellow' : ' sx-progress--green')">
-                                            <div class="sx-progress-bar"
-                                                 th:style="'width:' + ${node.lastRam} + '%'"></div>
-                                        </div>
-                                        <span th:unless="${node.lastRam != null}" class="muted" style="font-size:12px;">—</span>
-                                    </td>
                                     <td class="muted" style="font-size:12px;"
                                         th:text="${node.lastSeen != null ? #temporals.format(node.lastSeen, 'yyyy-MM-dd HH:mm') : 'Never'}">—</td>
                                     <td class="muted" style="font-size:11px;" th:text="${node.agentVersion ?: '—'}">—</td>
@@ -124,7 +96,7 @@
                                     </td>
                                 </tr>
                                 <tr th:if="${#lists.isEmpty(nodes)}">
-                                    <td colspan="11" style="text-align:center;padding:40px;color:var(--sx-text-muted);">
+                                    <td colspan="9" style="text-align:center;padding:40px;color:var(--sx-text-muted);">
                                         <i class="bi bi-hdd-network" style="font-size:32px;display:block;margin-bottom:10px;"></i>
                                         No nodes registered yet.
                                         <a sec:authorize="hasRole('ADMIN')" th:href="@{/nodes/new}"> Add your first node.</a>
