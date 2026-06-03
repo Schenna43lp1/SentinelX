@@ -1,5 +1,13 @@
-# Maven build output
+# Build & Dependencies
 target/
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+dependency-reduced-pom.xml
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.backup
+release.properties
 
 # IDE
 .idea/
@@ -8,32 +16,42 @@ target/
 .settings/
 .project
 .classpath
+.vscode/
 *.swp
+*.swo
+*~
+.DS_Store
 
 # Secrets / local overrides
 application-local.yml
+application-local.yaml
 *.env
+*.env.local
+.env*
+!.env.example
 
 # OS
 .DS_Store
 Thumbs.db
+Desktop.ini
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 
 # Logs
 logs/
-
-# Compiled class file
-*.class
-
-# Log file
 *.log
+*.log.*
 
-# BlueJ files
+# Java
+*.class
 *.ctxt
-
-# Mobile Tools for Java (J2ME)
 .mtj.tmp/
+hs_err_pid*
+replay_pid*
+*.jfr
 
-# Package Files #
+# Package Files
 *.jar
 *.war
 *.nar
@@ -42,8 +60,24 @@ logs/
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# Runtime & temp
+/bin/
+/gen/
+.gradle/
+build/
+out/
+*.ser
+
+# Copilot CLI
+.claude/
 .claude/*
-.claude
+
+# Node/npm (if used in docker or build scripts)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Misc
+*.orig
+*.patch
+.DS_Store
